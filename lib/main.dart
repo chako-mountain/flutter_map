@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:geolocator/geolocator.dart';
+import 'dart:async';
 
 void main() {
   runApp(const MyApp());
@@ -16,6 +17,7 @@ class MyApp extends StatelessWidget {
       title: 'Flutter Demo',
       theme: ThemeData(colorScheme: .fromSeed(seedColor: Colors.deepPurple)),
       home: const MyHomePage(title: 'Flutter Demo Home Page '),
+      themeMode: ThemeMode.dark,
     );
   }
 }
@@ -46,7 +48,14 @@ class _MyHomePageState extends State<MyHomePage> {
   void initState() {
     super.initState();
     _getCurrentPosition(); // 非同期関数を呼ぶ
+    // getCurrentLocation();
   }
+
+  // @override
+  // void setState() {
+  //   super.setState();
+  //   getCurrentLocation();
+  // }
 
   void _getCurrentPosition() async {
     final mapController = MapController();
@@ -70,6 +79,28 @@ class _MyHomePageState extends State<MyHomePage> {
       _counter++;
     });
   }
+
+  Function getCurrentLocation = () async {
+    final LocationSettings locationSettings = LocationSettings(
+      accuracy: LocationAccuracy.high,
+      distanceFilter: 100,
+    );
+    Position position = await Geolocator.getCurrentPosition(
+      locationSettings: locationSettings,
+    );
+
+    StreamSubscription<Position> positionStream =
+        Geolocator.getPositionStream(
+          locationSettings: locationSettings,
+        ).listen((Position? position) {
+          print("位置情報の取得成功:");
+          print(
+            position == null
+                ? 'Unknown'
+                : '${position.latitude.toString()}, ${position.longitude.toString()}',
+          );
+        });
+  };
 
   // final LocationSettings locationSettings = LocationSettings(
   //   accuracy: LocationAccuracy.high,
