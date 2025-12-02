@@ -48,7 +48,7 @@ class _MyHomePageState extends State<MyHomePage> {
   void initState() {
     super.initState();
     _getCurrentPosition(); // 非同期関数を呼ぶ
-    // getCurrentLocation();
+    getCurrentLocation();
   }
 
   // @override
@@ -83,7 +83,7 @@ class _MyHomePageState extends State<MyHomePage> {
   Function getCurrentLocation = () async {
     final LocationSettings locationSettings = LocationSettings(
       accuracy: LocationAccuracy.high,
-      distanceFilter: 100,
+      distanceFilter: 0,
     );
     Position position = await Geolocator.getCurrentPosition(
       locationSettings: locationSettings,
