@@ -34,6 +34,7 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   int _counter = 0;
   Position? _currentPosition; // 位置情報を格納する変数
+  final MapController _mapController = MapController();
 
   // @override
   // void initState() {
@@ -47,7 +48,7 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   void initState() {
     super.initState();
-    _getCurrentPosition(); // 非同期関数を呼ぶ
+    // _getCurrentPosition(); // 非同期関数を呼ぶ
     getCurrentLocation();
   }
 
@@ -58,16 +59,19 @@ class _MyHomePageState extends State<MyHomePage> {
   // }
 
   void _getCurrentPosition() async {
-    final mapController = MapController();
+    // final mapController = MapController();
     try {
       Position position = await _determinePosition();
       setState(() {
         _currentPosition = position; // State を更新
       });
 
-      mapController.move(
+      _mapController.move(
         LatLng(_currentPosition!.latitude, _currentPosition!.longitude),
         15.0,
+      );
+      print(
+        '位置情報の取得成功: ${_currentPosition!.latitude}, ${_currentPosition!.longitude}',
       );
     } catch (e) {
       debugPrint('位置情報の取得に失敗: $e');
@@ -80,7 +84,9 @@ class _MyHomePageState extends State<MyHomePage> {
     });
   }
 
-  Function getCurrentLocation = () async {
+  void getCurrentLocation() async {
+    // final mapController = MapController();
+
     final LocationSettings locationSettings = LocationSettings(
       accuracy: LocationAccuracy.high,
       distanceFilter: 0,
@@ -99,8 +105,16 @@ class _MyHomePageState extends State<MyHomePage> {
                 ? 'Unknown'
                 : '${position.latitude.toString()}, ${position.longitude.toString()}',
           );
+          _mapController.move(
+            LatLng(position!.latitude, position.longitude),
+            15.0,
+          );
         });
-  };
+
+    if (positionStream != null) {
+      _mapController.move(LatLng(position.latitude, position.longitude), 15.0);
+    }
+  }
 
   // final LocationSettings locationSettings = LocationSettings(
   //   accuracy: LocationAccuracy.high,
@@ -131,12 +145,13 @@ class _MyHomePageState extends State<MyHomePage> {
       //   ),
       // ),
       body: FlutterMap(
+        mapController: _mapController,
         options: MapOptions(
           // 名古屋駅の緯度経度です。
           // initialCenter: LatLng(35.170915, 136.881537),
           initialCenter: _currentPosition != null
               ? LatLng(_currentPosition!.latitude, _currentPosition!.longitude)
-              : LatLng(35.170915, 136.881537), // 位置情報がまだ取得できていない場合のデフォルト位置
+              : LatLng(34.170915, 136.881537), // 位置情報がまだ取得できていない場合のデフォルト位置
           initialZoom: 10.0,
         ),
         children: [
